@@ -1,33 +1,71 @@
-import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet } from 'react-native';
+// ============================================================
+// Rota: Inventário (aba 1 / tela)
+//
+// Diferença em relação ao componente de tela antigo:
+// rotas do expo-router NÃO recebem props. A navegação é feita
+// com o objeto `router`, importado do expo-router.
+// ============================================================
+
+import { View, Text, TextInput, FlatList, TouchableOpacity, StyleSheet, ScrollView } from 'react-native';
 import { useState } from 'react';
-import { useProducts } from '../hooks/productsContext';
-import { useCategories } from '../hooks/categoriesContext';
-import { ProductListItem } from '../components/ProductListItem';
-import { EmptyState } from '../components/EmptyState';
-import { colors, spacing, globalStyles } from '../styles/global';
+import { router } from 'expo-router';
+import { useProducts } from '@/hooks/productsContext';
+import { useCategories } from '@/hooks/categoriesContext';
+import { ProductListItem } from '@/components/ProductListItem';
+import { EmptyState } from '@/components/EmptyState';
+import { Product } from '@/models/product';
+import { colors, spacing, globalStyles } from '@/styles/global';
 
-type InventoryScreenProps = {
-  onAddPress: () => void;
-  onProductPress: (product: any) => void;
-};
-
-export function InventoryScreen({ onAddPress, onProductPress }: InventoryScreenProps) {
-  const { products, loading, refresh } = useProducts();
+export default function InventoryScreen() {
+  const { products, loading } = useProducts();
   const { categories } = useCategories();
 
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<number | undefined>(undefined);
 
+  // ---------------------------------------------------------
+  // Filtra a lista em memória.
+  //
+  // A lista inteira já vem pronta do banco (products). Aqui
+  // aplicamos só o que o usuário digitou/selecionou.
+  // Para listas muito grandes o ideal seria filtrar no SQL
+  // (ver productsRepository.listFiltered), mas para este
+  // projeto local a filtragem em memória é suficiente e mais
+  // simples.
+  // ---------------------------------------------------------
   const filtered = products.filter((p) => {
     const matchSearch = search
       ? (p.name?.toLowerCase().includes(search.toLowerCase()) ||
-          p.barcode?.toLowerCase().includes(search.toLowerCase()))
+        p.barcode?.toLowerCase().includes(search.toLowerCase()))
       : true;
     const matchCategory = categoryFilter !== undefined
       ? p.category_id === categoryFilter
       : true;
     return matchSearch && matchCategory;
   });
+
+  // ---------------------------------------------------------
+  // "+ Adicionar" → abre o editor em modo de criação.
+  // A string "novo" dentro da URL avisa a rota que é criação.
+  // ---------------------------------------------------------
+  const onAddPress = () => {
+    router.push('/product/novo');
+  };
+
+  // ---------------------------------------------------------
+  // Toque num produto da lista → abre o editor em modo de
+  // edição, carregando o id do produto na URL.
+  //
+  // Formato do objeto: o primeiro campo é o caminho da rota
+  // e o segundo são os parâmetros. O [id] do arquivo
+  // product/[id].tsx recebe o valor de params.id.
+  // ---------------------------------------------------------
+  const onProductPress = (product: Product) => {
+    router.push({
+      pathname: '/product/[id]',
+      params: { id: String(product.id) },
+    });
+  };
 
   const onScanPress = () => {
     // TODO: integrar com scanner de código de barras (F1)
@@ -48,26 +86,28 @@ export function InventoryScreen({ onAddPress, onProductPress }: InventoryScreenP
       </View>
 
       <View style={styles.filterBar}>
-        <Text style={styles.filterLabel}>Categoria:</Text>
-        {categories.map((cat) => (
+        <Text style={styles.filterLabel}>Categorias ({categories.length}):</Text>
+        <ScrollView horizontal={true}>
+          {categories.map((cat) => (
+            <TouchableOpacity
+              key={String(cat.id)}
+              style={[styles.filterChip, categoryFilter === cat.id && styles.chipActive]}
+              onPress={() => setCategoryFilter(categoryFilter === cat.id ? undefined : cat.id)}
+            >
+              <Text style={[styles.chipText, categoryFilter === cat.id && styles.chipActiveText]}>
+                {cat.name}
+              </Text>
+            </TouchableOpacity>
+          ))}
           <TouchableOpacity
-            key={String(cat.id)}
-            style={[styles.filterChip, categoryFilter === cat.id && styles.chipActive]}
-            onPress={() => setCategoryFilter(categoryFilter === cat.id ? undefined : cat.id)}
+            style={[styles.filterChip, categoryFilter === undefined && styles.chipActive]}
+            onPress={() => setCategoryFilter(undefined)}
           >
-            <Text style={[styles.chipText, categoryFilter === cat.id && styles.chipActiveText]}>
-              {cat.name}
+            <Text style={[styles.chipText, categoryFilter === undefined && styles.chipActiveText]}>
+              Todas
             </Text>
           </TouchableOpacity>
-        ))}
-        <TouchableOpacity
-          style={[styles.filterChip, categoryFilter === undefined && styles.chipActive]}
-          onPress={() => setCategoryFilter(undefined)}
-        >
-          <Text style={[styles.chipText, categoryFilter === undefined && styles.chipActiveText]}>
-            Todas
-          </Text>
-        </TouchableOpacity>
+        </ScrollView>
       </View>
 
       <View style={styles.listContainer}>
@@ -138,7 +178,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
   },
   filterChip: {
-    backgroundColor: '#f5f5f5',
+    backgroundColor: '#f5f5f5', // 
     borderRadius: 20,
     paddingHorizontal: spacing.m,
     paddingVertical: spacing.xs,

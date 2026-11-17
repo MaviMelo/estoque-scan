@@ -90,3 +90,22 @@ export function checkTables(): boolean {
 
   return allOk;
 }
+
+// -----------------------------------------------------------
+// A CRIAÇÃO DAS TABELAS ACONTECE AQUI, NO TOPO DO MÓDULO.
+//
+// No momento em que este arquivo é importado (por exemplo, pelo
+// RootLayout), o banco já nasce pronto — com as tabelas criadas.
+//
+// Por que aqui e não dentro de um useEffect? No React, os efeitos
+// dos componentes FILHOS rodam antes dos efeitos dos PAIS. Os
+// Providers (ProductsProvider e CategoriesProvider) são filhos do
+// RootLayout e, no próprio efeito deles, já chamam listAll() para
+// ler os dados. Se criássemos as tabelas em um useEffect do pai,
+// esses filhos tentariam ler de um banco que ainda não tem tabelas
+// — e o app abriria com o erro "no such table: products".
+//
+// Este é o padrão "side effect at module scope": o módulo faz o
+// que precisa fazer uma única vez, no momento em que é carregado.
+// -----------------------------------------------------------
+initDatabase();

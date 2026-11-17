@@ -21,8 +21,10 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "scheme": "estoque-scan",
+    "experiments": { "typedRoutes": true },
     "plugins": [
-      "expo-sqlite"
+      "expo-sqlite", "expo-router"
     ]
   }
 }
