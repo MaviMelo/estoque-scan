@@ -6,6 +6,23 @@ import { EmptyState } from '@/components/EmptyState';
 import { Category } from '@/models/category';
 import { colors, spacing, globalStyles } from '@/styles/global';
 
+const PRESET_COLORS = [
+  '#0df318',
+  '#2E7D32', // Verde (Padrão)
+  '#00838F', // Ciano
+  '#74838b', // Cinza Azulado
+  '#425e6c',
+  '#5ee8e5',
+  '#93c5f6',
+  '#1976D2', // Azul
+  '#af48ef', // Roxo
+  '#ee25f9',
+  '#C62828', // Vermelho
+  '#EF6C00', // Laranja Escuro
+  '#f7e308', // Amarelo/Laranja
+  '#b99425',
+];
+
 export default function CategoriesScreen() {
   const { categories, loading, refresh, createCategory, updateCategory, deleteCategory } = useCategories();
 
@@ -26,6 +43,7 @@ export default function CategoriesScreen() {
   // ---------------------------------------------------------
   const [editing, setEditing] = useState<Category | null>(null);
   const [editName, setEditName] = useState('');
+  const [editColor, setEditColor] = useState('');
 
   const onCreatePress = () => {
     if (!name.trim()) {
@@ -45,6 +63,7 @@ export default function CategoriesScreen() {
   const onCategoryPress = (category: Category) => {
     setEditing(category);
     setEditName(category.name);
+    setEditColor(category.color || '');
   };
 
   // Fecha o modal e limpa o campo. Chamado por Cancelar, pelo X
@@ -52,6 +71,7 @@ export default function CategoriesScreen() {
   const onCancelEdit = () => {
     setEditing(null);
     setEditName('');
+    setEditColor('');
   };
 
   // ---------------------------------------------------------
@@ -68,7 +88,7 @@ export default function CategoriesScreen() {
     }
 
     try {
-      updateCategory(id, { name: newName });
+      updateCategory(id, { name: newName, color: editColor });
       onCancelEdit();
     } catch (e) {
       // O banco tem 'name UNIQUE'. Renomear para um nome que já
@@ -122,12 +142,21 @@ export default function CategoriesScreen() {
           value={name}
           onChangeText={setName}
         />
-        <TextInput
-          style={styles.input}
-          placeholder="Cor (hex, ex: #2E7D32)"
-          value={color}
-          onChangeText={setColor}
-        />
+        <Text style={styles.sectionTitle}>Cor da categoria</Text>
+        <View style={styles.colorPicker}>
+          {PRESET_COLORS.map((c) => (
+            <TouchableOpacity
+              key={c}
+              style={[
+                styles.colorOption,
+                { backgroundColor: c },
+                color === c && styles.colorOptionSelected,
+              ]}
+              onPress={() => setColor(c)}
+            />
+          ))}
+        </View>
+
         <TouchableOpacity style={styles.button} onPress={onCreatePress}>
           <Text style={styles.buttonText}>Criar</Text>
         </TouchableOpacity>
@@ -180,6 +209,21 @@ export default function CategoriesScreen() {
               autoFocus={true}
             />
 
+            <Text style={styles.sectionTitle}>Cor</Text>
+            <View style={styles.colorPicker}>
+              {PRESET_COLORS.map((c) => (
+                <TouchableOpacity
+                  key={c}
+                  style={[
+                    styles.colorOption,
+                    { backgroundColor: c },
+                    editColor === c && styles.colorOptionSelected,
+                  ]}
+                  onPress={() => setEditColor(c)}
+                />
+              ))}
+            </View>
+
             <View style={styles.modalActions}>
               <TouchableOpacity
                 style={[styles.button, styles.buttonCancel]}
@@ -188,7 +232,7 @@ export default function CategoriesScreen() {
                 <Text style={styles.buttonCancelText}>Cancelar</Text>
               </TouchableOpacity>
               <TouchableOpacity style={styles.button} onPress={onSaveEdit}>
-                <Text style={styles.buttonText}>Salvar</Text>
+                <Text style={[styles.buttonText, {paddingHorizontal: 60}]}>Salvar</Text>
               </TouchableOpacity>
             </View>
 
@@ -249,6 +293,7 @@ const styles = StyleSheet.create({
     color: '#ffffff',
     fontWeight: '600',
     fontSize: 16,
+     
   },
   listContainer: {
     flex: 1,
@@ -308,5 +353,22 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: '600',
     fontSize: 16,
+  },
+  colorPicker: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: spacing.xs,
+    marginBottom: spacing.m,
+  },
+  colorOption: {
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    borderWidth: 2,
+    borderColor: 'transparent',
+  },
+  colorOptionSelected: {
+    borderColor: colors.text,
+    transform: [{ scale: 1.1 }],
   },
 });
