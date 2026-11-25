@@ -58,6 +58,7 @@ export default function EditorScreen() {
   const [barcode, setBarcode] = useState(product?.barcode ?? '');
   const [description, setDescription] = useState(product?.description ?? '');
   const [quantity, setQuantity] = useState(String(product?.quantity ?? 0));
+  const [unitType, setUnitType] = useState(String(product?.unit_type ?? ''));
   const [categoryId, setCategoryId] = useState(product?.category_id);
 
   const onSavePress = () => {
@@ -71,6 +72,7 @@ export default function EditorScreen() {
       name: name.trim(),
       description: description || undefined,
       quantity: parseInt(quantity, 10) || 0,
+      unit_type: unitType || undefined,
       category_id: categoryId,
     };
 
@@ -155,6 +157,12 @@ export default function EditorScreen() {
             value={quantity}
             onChangeText={setQuantity}
             keyboardType="numeric"
+          />
+          <TextInput
+            style={styles.input}
+            placeholder="Unidade de medida, ex.: kg, L, ml, m, etc."
+            value={unitType}
+            onChangeText={setUnitType}
           />
           <Text style={styles.categoryLabel}>Categoria:</Text>
           <TouchableOpacity style={styles.categorySelect} onPress={onCategorySelectPress}>

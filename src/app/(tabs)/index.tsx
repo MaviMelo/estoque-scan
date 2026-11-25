@@ -94,14 +94,21 @@ export default function InventoryScreen() {
               style={[styles.filterChip, categoryFilter === cat.id && styles.chipActive]}
               onPress={() => setCategoryFilter(categoryFilter === cat.id ? undefined : cat.id)}
             >
-              <Text style={[styles.chipText, categoryFilter === cat.id && styles.chipActiveText]}>
+              <Text style={[
+                {
+                color: cat.color, 
+                textShadowColor: 'black', 
+                textShadowOffset: { width: 0, height: 0 },
+                textShadowRadius: 2
+                },
+                categoryFilter === cat.id && styles.chipActiveText]}>
                 {cat.name}
               </Text>
             </TouchableOpacity>
-          ))}
+        ))}
           <TouchableOpacity
-            style={[styles.filterChip, categoryFilter === undefined && styles.chipActive]}
-            onPress={() => setCategoryFilter(undefined)}
+          style={[styles.filterChip, categoryFilter === undefined && styles.chipActive]}
+          onPress={() => setCategoryFilter(undefined)}
           >
             <Text style={[styles.chipText, categoryFilter === undefined && styles.chipActiveText]}>
               Todas
@@ -117,11 +124,18 @@ export default function InventoryScreen() {
           <EmptyState message="Nenhum produto encontrado." />
         ) : (
           <FlatList
-            data={filtered}
-            keyExtractor={(item) => String(item.id)}
-            renderItem={({ item }) => (
-              <ProductListItem product={item} onPress={onProductPress} />
-            )}
+          data={filtered}
+          keyExtractor={(item) => String(item.id)}
+          renderItem={({ item }) => {
+            const category = categories.find(c => c.id === item.category_id);
+            return (
+              <ProductListItem 
+                product={item} 
+                category={category} 
+                onPress={onProductPress} 
+              />
+            );
+          }}
           />
         )}
       </View>
@@ -200,10 +214,10 @@ const styles = StyleSheet.create({
   },
   fab: {
     position: 'absolute',
-    bottom: spacing.l,
+    bottom: 64,
     right: spacing.l,
     backgroundColor: colors.primary,
-    borderRadius: 28,
+    borderRadius: 30,
     paddingHorizontal: spacing.l,
     paddingVertical: spacing.m,
     elevation: 4,

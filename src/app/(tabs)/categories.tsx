@@ -171,6 +171,7 @@ export default function CategoriesScreen() {
           <FlatList
             data={categories}
             keyExtractor={(item) => String(item.id)}
+             
             renderItem={({ item }) => (
               <CategoryListItem category={item} onPress={onCategoryPress} />
             )}
@@ -296,7 +297,8 @@ const styles = StyleSheet.create({
      
   },
   listContainer: {
-    flex: 1,
+    flex: 1, 
+    color: '#619251',
   },
   // ---------------------------------------------------------
   // Modal de edição (bottom sheet)

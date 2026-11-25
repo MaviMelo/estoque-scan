@@ -37,6 +37,9 @@ const styles = StyleSheet.create({
   name: {
     fontSize: 16,
     color: '#111',
+    textShadowColor: '#fff',
+    textShadowOffset: { width: 0, height: 0 },
+    textShadowRadius: 15, 
     fontWeight: '600',
   },
 });

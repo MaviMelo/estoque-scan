@@ -24,7 +24,7 @@ export default function TabsLayout() {
           borderTopColor: colors.border,
         },
         headerStyle: { backgroundColor: colors.primary },
-        headerTintColor: '#fff',
+        headerTintColor: '#ffffff',
       }}
     >
       {/* Aba 1 — Inventário
@@ -33,8 +33,14 @@ export default function TabsLayout() {
         name="index"
         options={{
           title: 'Inventário',
-          // Ícone: uso de emoji para não depender de @expo/vector-icons
-          tabBarIcon: () => <Text style={{ fontSize: 20 }}>📦</Text>,
+          tabBarIcon: ({ focused }) => (
+            <Text style={{ 
+              fontSize: focused ? 20 : 15,
+              opacity: focused ? 1 : 0.2,
+            }}>
+              📦
+            </Text>
+          ),
         }}
       />
 
@@ -43,7 +49,14 @@ export default function TabsLayout() {
         name="categories"
         options={{
           title: 'Categorias',
-          tabBarIcon: () => <Text style={{ fontSize: 20 }}>🏷️</Text>,
+          tabBarIcon: ({ focused }) => (
+            <Text style={{ 
+              fontSize: focused ? 20 : 15,
+              opacity: focused ? 1 : 0.2,
+            }}>
+              🏷️
+            </Text>
+          ),
         }}
       />
     </Tabs>
